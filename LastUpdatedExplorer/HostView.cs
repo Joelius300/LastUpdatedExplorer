@@ -49,91 +49,36 @@ namespace LastUpdatedExplorer
 
             if (searchCriteria == SearchCriteria.None)
             {
+                // just include everything
                 return f => true;
             }
             else
             {
-                // TODO: dynamically create core filter using the search criteria, (probably) using Expressions
+                Expression<Predicate<FileSystemInfo>> expression = null;
 
-                List<Expression> expressions = new List<Expression>();
-
-                ParameterExpression fileInfoParam = Expression.Parameter(typeof(FileSystemInfo), "fileInfo");
-                MethodInfo isBetweenMethod = typeof(DateTimeExtensions).GetMethod("Between", BindingFlags.Public | BindingFlags.Static);
-
+                // add filter for creation time
                 if (searchCriteria.HasFlag(SearchCriteria.CreationTime))
                 {
-                    PropertyInfo creationTimeProp = typeof(FileSystemInfo).GetProperty("CreationTime");
-                    expressions.Add(
-                        Expression.Call(
-                                null,
-                                isBetweenMethod,
-                                new Expression[] {
-                                Expression.Property(fileInfoParam, creationTimeProp), 
-                                Expression.Constant(start),
-                                Expression.Constant(end)
-                                }));
+                    Expression<Predicate<FileSystemInfo>> checkCreationTime = info => info.CreationTime.Between(start, end);
+                    expression = checkCreationTime; // no need to check, it's going to be null
                 }
 
+                // add filter for modified time (|| existing if necessary)
                 if (searchCriteria.HasFlag(SearchCriteria.LastModified))
                 {
-                    PropertyInfo lastModifiedProp = typeof(FileSystemInfo).GetProperty("LastWriteTime");
-                    Expression checkLastModified =
-                        Expression.Call(
-                                null,
-                                isBetweenMethod,
-                                new Expression[] {
-                                Expression.Property(fileInfoParam, lastModifiedProp), 
-                                Expression.Constant(start),
-                                Expression.Constant(end)
-                                });
-
-                    if (expressions.Count == 0)
-                    {
-                        expressions.Add(checkLastModified);
-                    }
-                    else
-                    {
-                        Expression lastExpression = expressions.Last();
-                        expressions.RemoveAt(expressions.Count - 1);
-
-                        expressions.Add(
-                            Expression.OrElse(
-                                lastExpression,
-                                checkLastModified));
-                    }
+                    Expression<Predicate<FileSystemInfo>> checkLastModified = info => info.LastWriteTime.Between(start, end);
+                    expression = expression.OrIfNotNull(checkLastModified);
                 }
 
+                // add filter for access time (|| existing if necessary)
                 if (searchCriteria.HasFlag(SearchCriteria.LastAccess))
                 {
-                    PropertyInfo lastAccessProp = typeof(FileSystemInfo).GetProperty("LastAccessTime");
-                    Expression checkLastAccess =
-                        Expression.Call(
-                                null,
-                                isBetweenMethod,
-                                new Expression[] {
-                                Expression.Property(fileInfoParam, lastAccessProp), 
-                                Expression.Constant(start),
-                                Expression.Constant(end)
-                                });
-
-                    if (expressions.Count == 0)
-                    {
-                        expressions.Add(checkLastAccess);
-                    }
-                    else
-                    {
-                        Expression lastExpression = expressions.Last();
-                        expressions.RemoveAt(expressions.Count - 1);
-
-                        expressions.Add(
-                            Expression.OrElse(
-                                lastExpression,
-                                checkLastAccess));
-                    }
+                    Expression<Predicate<FileSystemInfo>> checkLastAccess = info => info.LastAccessTime.Between(start, end);
+                    expression = expression.OrIfNotNull(checkLastAccess);
                 }
 
-                Expression<Predicate<FileSystemInfo>> coreFilterExpr = Expression.Lambda<Predicate<FileSystemInfo>>(Expression.Block(expressions), fileInfoParam);
-                Predicate<FileSystemInfo> coreFilter = coreFilterExpr.Compile();
+                // compile to delegate
+                Predicate<FileSystemInfo> coreFilter = expression.Compile();
 
                 return f => ContainsAnyChange(f, coreFilter);
             }

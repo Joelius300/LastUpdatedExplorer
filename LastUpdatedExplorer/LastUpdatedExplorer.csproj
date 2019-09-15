@@ -78,9 +78,11 @@
     <Compile Include="LazyFilteredExplorer.Designer.cs">
       <DependentUpon>LazyFilteredExplorer.cs</DependentUpon>
     </Compile>
+    <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SearchCriteria.cs" />
+    <Compile Include="SubstExpressionVisitor.cs" />
     <EmbeddedResource Include="HostView.resx">
       <DependentUpon>HostView.cs</DependentUpon>
     </EmbeddedResource>

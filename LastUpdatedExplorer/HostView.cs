@@ -132,8 +132,8 @@ namespace LastUpdatedExplorer
                     }
                 }
 
-                Predicate<FileSystemInfo> coreFilter =
-                    Expression.Lambda<Predicate<FileSystemInfo>>(Expression.Block(expressions), fileInfoParam).Compile();
+                Expression<Predicate<FileSystemInfo>> coreFilterExpr = Expression.Lambda<Predicate<FileSystemInfo>>(Expression.Block(expressions), fileInfoParam);
+                Predicate<FileSystemInfo> coreFilter = coreFilterExpr.Compile();
 
                 return f => ContainsAnyChange(f, coreFilter);
             }

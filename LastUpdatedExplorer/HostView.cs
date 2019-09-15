@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -53,15 +54,86 @@ namespace LastUpdatedExplorer
             else
             {
                 // TODO: dynamically create core filter using the search criteria, (probably) using Expressions
-                Predicate<FileSystemInfo> coreFilter = info =>
-                ((searchCriteria.HasFlag(SearchCriteria.CreationTime) &&
-                info.CreationTime.Between(start, end))
-                ||
-                (searchCriteria.HasFlag(SearchCriteria.LastModified) &&
-                info.LastWriteTime.Between(start, end))
-                ||
-                (searchCriteria.HasFlag(SearchCriteria.LastAccess) &&
-                info.LastAccessTime.Between(start, end)));
+
+                List<Expression> expressions = new List<Expression>();
+
+                ParameterExpression fileInfoParam = Expression.Parameter(typeof(FileSystemInfo), "fileInfo");
+                MethodInfo isBetweenMethod = typeof(DateTimeExtensions).GetMethod("Between", BindingFlags.Public | BindingFlags.Static);
+
+                if (searchCriteria.HasFlag(SearchCriteria.CreationTime))
+                {
+                    PropertyInfo creationTimeProp = typeof(FileSystemInfo).GetProperty("CreationTime");
+                    expressions.Add(
+                        Expression.Call(
+                                null,
+                                isBetweenMethod,
+                                new Expression[] {
+                                Expression.Property(fileInfoParam, creationTimeProp), 
+                                Expression.Constant(start),
+                                Expression.Constant(end)
+                                }));
+                }
+
+                if (searchCriteria.HasFlag(SearchCriteria.LastModified))
+                {
+                    PropertyInfo lastModifiedProp = typeof(FileSystemInfo).GetProperty("LastWriteTime");
+                    Expression checkLastModified =
+                        Expression.Call(
+                                null,
+                                isBetweenMethod,
+                                new Expression[] {
+                                Expression.Property(fileInfoParam, lastModifiedProp), 
+                                Expression.Constant(start),
+                                Expression.Constant(end)
+                                });
+
+                    if (expressions.Count == 0)
+                    {
+                        expressions.Add(checkLastModified);
+                    }
+                    else
+                    {
+                        Expression lastExpression = expressions.Last();
+                        expressions.RemoveAt(expressions.Count - 1);
+
+                        expressions.Add(
+                            Expression.OrElse(
+                                lastExpression,
+                                checkLastModified));
+                    }
+                }
+
+                if (searchCriteria.HasFlag(SearchCriteria.LastAccess))
+                {
+                    PropertyInfo lastAccessProp = typeof(FileSystemInfo).GetProperty("LastAccessTime");
+                    Expression checkLastAccess =
+                        Expression.Call(
+                                null,
+                                isBetweenMethod,
+                                new Expression[] {
+                                Expression.Property(fileInfoParam, lastAccessProp), 
+                                Expression.Constant(start),
+                                Expression.Constant(end)
+                                });
+
+                    if (expressions.Count == 0)
+                    {
+                        expressions.Add(checkLastAccess);
+                    }
+                    else
+                    {
+                        Expression lastExpression = expressions.Last();
+                        expressions.RemoveAt(expressions.Count - 1);
+
+                        expressions.Add(
+                            Expression.OrElse(
+                                lastExpression,
+                                checkLastAccess));
+                    }
+                }
+
+                Predicate<FileSystemInfo> coreFilter =
+                    Expression.Lambda<Predicate<FileSystemInfo>>(Expression.Block(expressions), fileInfoParam).Compile();
 
                 return f => ContainsAnyChange(f, coreFilter);
             }
@@ -77,7 +149,7 @@ namespace LastUpdatedExplorer
 
             if (info is DirectoryInfo dir)
             {
-                if(_includeValuesFromFolders && coreFilter(info))
+                if (_includeValuesFromFolders && coreFilter(info))
                 {
                     _matchesCache.Add(info.FullName, true);
                     return true;
@@ -113,7 +185,7 @@ namespace LastUpdatedExplorer
 
         private void BtnBrowse_Click(object sender, EventArgs e)
         {
-            if(folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 _txtPath.Text = folderBrowserDialog1.SelectedPath;
             }
@@ -121,7 +193,7 @@ namespace LastUpdatedExplorer
 
         private void BtnGo_Click(object sender, EventArgs e)
         {
-            if(_dtpFrom.Value > _dtpTo.Value)
+            if (_dtpFrom.Value > _dtpTo.Value)
             {
                 MessageBox.Show("The start time has to be lower than the end time.",
                     "End time lower than start time",

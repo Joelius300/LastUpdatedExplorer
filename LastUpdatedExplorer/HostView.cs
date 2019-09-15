@@ -20,7 +20,7 @@ namespace LastUpdatedExplorer
         private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
         private readonly Dictionary<string, bool> _matchesCache = new Dictionary<string, bool>();
 
-        private bool _includeValuesFromFolders = false;
+        private bool _considerFolderStamps;
         private DateTime _lastUpdateStart;
         private DateTime _lastUpdateEnd;
         private SearchCriteria _searchCriteria;
@@ -80,6 +80,7 @@ namespace LastUpdatedExplorer
                 // compile to delegate
                 Predicate<FileSystemInfo> coreFilter = expression.Compile();
 
+                // return predicate which additionally uses cache for folders in combination with the core-filter
                 return f => ContainsAnyChange(f, coreFilter);
             }
         }
@@ -94,7 +95,7 @@ namespace LastUpdatedExplorer
                     return matchesFromCache;
                 }
 
-                if (_includeValuesFromFolders && coreFilter(info))
+                if (_considerFolderStamps && coreFilter(info))
                 {
                     _matchesCache.Add(info.FullName, true);
                     return true;
@@ -174,6 +175,9 @@ namespace LastUpdatedExplorer
             if (_cbxCreationTime.Checked) _searchCriteria |= SearchCriteria.CreationTime;
             if (_cbxLastModified.Checked) _searchCriteria |= SearchCriteria.LastModified;
             if (_cbxLastAccessed.Checked) _searchCriteria |= SearchCriteria.LastAccess;
+
+            // check if we should consider the folder timestamps themselfs as well
+            _considerFolderStamps = _cbxConsiderFolderStamps.Checked;
 
             // clear cache
             _matchesCache.Clear();

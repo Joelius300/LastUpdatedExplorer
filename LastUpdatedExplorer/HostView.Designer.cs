@@ -37,6 +37,7 @@
             this._btnGo = new System.Windows.Forms.Button();
             this._cbxLastAccessed = new System.Windows.Forms.CheckBox();
             this._cbxLastModified = new System.Windows.Forms.CheckBox();
+            this._cbxConsiderFolderStamps = new System.Windows.Forms.CheckBox();
             this._cbxCreationTime = new System.Windows.Forms.CheckBox();
             this._txtPath = new System.Windows.Forms.TextBox();
             this._btnBrowse = new System.Windows.Forms.Button();
@@ -67,6 +68,7 @@
             this.splitContainer1.Panel1.Controls.Add(this._btnGo);
             this.splitContainer1.Panel1.Controls.Add(this._cbxLastAccessed);
             this.splitContainer1.Panel1.Controls.Add(this._cbxLastModified);
+            this.splitContainer1.Panel1.Controls.Add(this._cbxConsiderFolderStamps);
             this.splitContainer1.Panel1.Controls.Add(this._cbxCreationTime);
             this.splitContainer1.Panel1.Controls.Add(this._txtPath);
             this.splitContainer1.Panel1.Controls.Add(this._btnBrowse);
@@ -150,6 +152,16 @@
             this._cbxLastModified.Text = "Last modified";
             this._cbxLastModified.UseVisualStyleBackColor = true;
             // 
+            // _cbxConsiderFolderStamps
+            // 
+            this._cbxConsiderFolderStamps.AutoSize = true;
+            this._cbxConsiderFolderStamps.Location = new System.Drawing.Point(269, 65);
+            this._cbxConsiderFolderStamps.Name = "_cbxConsiderFolderStamps";
+            this._cbxConsiderFolderStamps.Size = new System.Drawing.Size(151, 17);
+            this._cbxConsiderFolderStamps.TabIndex = 4;
+            this._cbxConsiderFolderStamps.Text = "Consider folder timestamps";
+            this._cbxConsiderFolderStamps.UseVisualStyleBackColor = true;
+            // 
             // _cbxCreationTime
             // 
             this._cbxCreationTime.AutoSize = true;
@@ -230,5 +242,6 @@
         private System.Windows.Forms.CheckBox _cbxLastModified;
         private System.Windows.Forms.CheckBox _cbxLastAccessed;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox _cbxConsiderFolderStamps;
     }
 }

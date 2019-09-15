@@ -86,14 +86,14 @@ namespace LastUpdatedExplorer
 
         private bool ContainsAnyChange(FileSystemInfo info, Predicate<FileSystemInfo> coreFilter)
         {
-            if (_matchesCache.TryGetValue(info.FullName, out bool matchesFromCache))
-            {
-                s_logger.Debug($"{info.Name} was cached; short-circuit used.");
-                return matchesFromCache;
-            }
-
             if (info is DirectoryInfo dir)
             {
+                if (_matchesCache.TryGetValue(info.FullName, out bool matchesFromCache))
+                {
+                    s_logger.Debug($"{info.Name} was cached; short-circuit used.");
+                    return matchesFromCache;
+                }
+
                 if (_includeValuesFromFolders && coreFilter(info))
                 {
                     _matchesCache.Add(info.FullName, true);
@@ -120,8 +120,6 @@ namespace LastUpdatedExplorer
 
             // it's just a file at this point
             bool matches = coreFilter(info);
-
-            _matchesCache.Add(info.FullName, matches);
             return matches;
         }
 

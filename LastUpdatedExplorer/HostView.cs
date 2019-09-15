@@ -20,7 +20,7 @@ namespace LastUpdatedExplorer
         private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
         private readonly Dictionary<string, bool> _matchesCache = new Dictionary<string, bool>();
 
-        private bool _includeValuesFromFolders = true;
+        private bool _includeValuesFromFolders = false;
         private DateTime _lastUpdateStart;
         private DateTime _lastUpdateEnd;
         private SearchCriteria _searchCriteria;
@@ -113,26 +113,23 @@ namespace LastUpdatedExplorer
                 {
                     /* skip */
                     s_logger.Warn($"No read-access for {info.Name}; don't include => no match.");
-                }
-            }
-            else
-            {
-                if (coreFilter(info))
-                {
-                    _matchesCache.Add(info.FullName, true);
-                    return true;
+                    _matchesCache.Add(info.FullName, false);
+                    return false;
                 }
             }
 
-            _matchesCache.Add(info.FullName, false);
-            return false;
+            // it's just a file at this point
+            bool matches = coreFilter(info);
+
+            _matchesCache.Add(info.FullName, matches);
+            return matches;
         }
 
         private void BtnBrowse_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            if (_folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                _txtPath.Text = folderBrowserDialog1.SelectedPath;
+                _txtPath.Text = _folderBrowserDialog.SelectedPath;
             }
         }
 

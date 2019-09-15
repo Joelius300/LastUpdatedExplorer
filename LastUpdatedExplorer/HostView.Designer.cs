@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this._dtpTo = new System.Windows.Forms.DateTimePicker();
@@ -39,9 +40,8 @@
             this._cbxCreationTime = new System.Windows.Forms.CheckBox();
             this._txtPath = new System.Windows.Forms.TextBox();
             this._btnBrowse = new System.Windows.Forms.Button();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.label3 = new System.Windows.Forms.Label();
             this._explorer = new LastUpdatedExplorer.LazyFilteredExplorer();
+            this._folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -77,6 +77,15 @@
             this.splitContainer1.Size = new System.Drawing.Size(855, 497);
             this.splitContainer1.SplitterDistance = 90;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(11, 16);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(33, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Root:";
             // 
             // label2
             // 
@@ -173,19 +182,6 @@
             this._btnBrowse.UseVisualStyleBackColor = true;
             this._btnBrowse.Click += new System.EventHandler(this.BtnBrowse_Click);
             // 
-            // folderBrowserDialog1
-            // 
-            this.folderBrowserDialog1.ShowNewFolderButton = false;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 16);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(33, 13);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Root:";
-            // 
             // _explorer
             // 
             this._explorer.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -195,6 +191,10 @@
             this._explorer.RootDirectory = null;
             this._explorer.Size = new System.Drawing.Size(855, 403);
             this._explorer.TabIndex = 8;
+            // 
+            // _folderBrowserDialog
+            // 
+            this._folderBrowserDialog.ShowNewFolderButton = false;
             // 
             // HostView
             // 
@@ -220,7 +220,7 @@
         private System.Windows.Forms.Button _btnBrowse;
         private System.Windows.Forms.TextBox _txtPath;
         private System.Windows.Forms.CheckBox _cbxCreationTime;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.FolderBrowserDialog _folderBrowserDialog;
         private System.Windows.Forms.Button _btnGo;
         private LazyFilteredExplorer _explorer;
         private System.Windows.Forms.Label label1;

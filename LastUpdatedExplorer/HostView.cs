@@ -112,8 +112,13 @@ namespace LastUpdatedExplorer
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    /* skip */
                     s_logger.Warn($"No read-access for {info.Name}; don't include => no match.");
+                    _matchesCache.Add(info.FullName, false);
+                    return false;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    s_logger.Warn($"Parts of the folder {info.Name} were not found; don't include => no match.");
                     _matchesCache.Add(info.FullName, false);
                     return false;
                 }

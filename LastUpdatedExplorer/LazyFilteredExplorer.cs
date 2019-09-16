@@ -67,7 +67,7 @@ namespace LastUpdatedExplorer
             PopulateListView(nodeDirInfo);
         }
 
-        private void Node_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private async void Node_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             // if it's not a lazy-node, don't do anything
             if (!(e.Node is LazyTreeNode node)) return;
@@ -79,13 +79,17 @@ namespace LastUpdatedExplorer
             DirectoryInfo nodeDirInfo = (DirectoryInfo)node.Tag;
 
             UseWaitCursor = true;           // use loading cursor
+            Enabled = false;
 
-            AddNewLayer(nodeDirInfo, node); // add new nodes
+            await AddNewLayer(nodeDirInfo, node).ConfigureAwait(true); // add new nodes
 
+            Enabled = true;
             UseWaitCursor = false;          // go back to default cursor
 
             // nodes are now available, don't waste time if you expand this again
             node.NodesLoaded = true;
+
+            if (!node.IsExpanded) node.Expand();
         }
 
         private void Node_MouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -117,7 +121,7 @@ namespace LastUpdatedExplorer
             }
         }
 
-        public void PopulateFirstLayer(bool expandRoot = true)
+        public async Task PopulateFirstLayer(bool expandRoot = true)
         {
             if (RootDirectory == null)
                 throw new InvalidOperationException("No root directory was specified.");
@@ -136,7 +140,7 @@ namespace LastUpdatedExplorer
                 Tag = RootDirectory
             };
 
-            AddNewLayer(RootDirectory, rootNode);
+            await AddNewLayer(RootDirectory, rootNode).ConfigureAwait(true);
 
             _treeView.Nodes.Add(rootNode);
             if(expandRoot) rootNode.Expand();
@@ -188,7 +192,7 @@ namespace LastUpdatedExplorer
         private bool HasSubFolders(DirectoryInfo directory) =>
             directory.EnumerateDirectories().Any(f => MatchesFilter(f));
 
-        private void AddNewLayer(DirectoryInfo currentDir, TreeNode parent)
+        private async Task AddNewLayer(DirectoryInfo currentDir, TreeNode parent)
         {
             // if we don't have read access, we can't do anything
             if (!CanRead(currentDir)) return;
@@ -199,7 +203,7 @@ namespace LastUpdatedExplorer
 #endif
 
             // "don't waste time drawing yourself, I'm adding nodes"
-            _treeView.BeginUpdate();
+            //_treeView.BeginUpdate();
 
             foreach (DirectoryInfo subDir in currentDir.EnumerateDirectories())
             {
@@ -209,7 +213,8 @@ namespace LastUpdatedExplorer
 #endif
 
                 // skip if it doesn't match our criteria
-                if (!MatchesFilter(subDir))
+                bool matches = await Task.Run(() => MatchesFilter(subDir)).ConfigureAwait(true);
+                if (!matches)
                 {
 #if DEBUG
                     // DEBUG
@@ -267,7 +272,7 @@ namespace LastUpdatedExplorer
             }
 
             // "okay the nodes are added, you can draw youself again"
-            _treeView.EndUpdate();
+            //_treeView.EndUpdate();
 
 #if DEBUG
             // DEBUG

@@ -137,7 +137,7 @@ namespace LastUpdatedExplorer
             }
         }
 
-        private void BtnGo_Click(object sender, EventArgs e)
+        private async void BtnGo_Click(object sender, EventArgs e)
         {
             if (_dtpFrom.Value > _dtpTo.Value)
             {
@@ -196,7 +196,7 @@ namespace LastUpdatedExplorer
             _explorer.Filter = GetFilter(_lastUpdateStart, _lastUpdateEnd, _searchCriteria);
 
             // add root node and expand it
-            _explorer.PopulateFirstLayer(true);
+            await _explorer.PopulateFirstLayer(true).ConfigureAwait(true);
         }
     }
 }

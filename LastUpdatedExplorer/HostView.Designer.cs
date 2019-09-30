@@ -77,7 +77,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this._explorer);
             this.splitContainer1.Size = new System.Drawing.Size(855, 497);
-            this.splitContainer1.SplitterDistance = 90;
+            this.splitContainer1.SplitterDistance = 100;
             this.splitContainer1.TabIndex = 0;
             // 
             // label3

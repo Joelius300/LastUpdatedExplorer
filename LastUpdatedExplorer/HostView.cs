@@ -60,7 +60,7 @@ namespace LastUpdatedExplorer
                 if (searchCriteria.HasFlag(SearchCriteria.CreationTime))
                 {
                     Expression<Predicate<FileSystemInfo>> checkCreationTime = info => info.CreationTime.Between(start, end);
-                    expression = checkCreationTime; // no need to check, it's going to be null
+                    expression = checkCreationTime; // no need to check, expression is null
                 }
 
                 // add filter for modified time (|| existing if necessary)
@@ -116,7 +116,7 @@ namespace LastUpdatedExplorer
                     _matchesCache.Add(info.FullName, false);
                     return false;
                 }
-                catch (DirectoryNotFoundException)
+                catch (DirectoryNotFoundException) // this happens for symbolic links like Desktop
                 {
                     s_logger.Warn($"Parts of the folder {info.Name} were not found; don't include => no match.");
                     _matchesCache.Add(info.FullName, false);

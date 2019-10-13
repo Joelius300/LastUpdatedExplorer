@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace LastUpdatedExplorer
 {
-    internal class SubstExpressionVisitor : ExpressionVisitor
+    internal class SubstParameterExpressionVisitor : ExpressionVisitor
     {
         private readonly Dictionary<Expression, Expression> _subst = new Dictionary<Expression, Expression>();
 

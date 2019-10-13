@@ -17,13 +17,13 @@ namespace LastUpdatedExplorer
             if (b == null)
                 throw new ArgumentNullException(nameof(b));
 
-            ParameterExpression p = a.Parameters[0];
+            ParameterExpression parameter = a.Parameters[0];
 
-            SubstExpressionVisitor visitor = new SubstExpressionVisitor();
-            visitor[b.Parameters[0]] = p;
+            SubstParameterExpressionVisitor visitor = new SubstParameterExpressionVisitor();
+            visitor[b.Parameters[0]] = parameter;
 
-            Expression body = Expression.AndAlso(a.Body, visitor.Visit(b.Body));
-            return Expression.Lambda<Predicate<T>>(body, p);
+            Expression combinedBody = Expression.AndAlso(a.Body, visitor.Visit(b.Body));
+            return Expression.Lambda<Predicate<T>>(combinedBody, parameter);
         }
 
         public static Expression<Predicate<T>> Or<T>(this Expression<Predicate<T>> a, Expression<Predicate<T>> b)
@@ -34,13 +34,13 @@ namespace LastUpdatedExplorer
             if (b == null)
                 throw new ArgumentNullException(nameof(b));
 
-            ParameterExpression p = a.Parameters[0];
+            ParameterExpression parameter = a.Parameters[0];
 
-            SubstExpressionVisitor visitor = new SubstExpressionVisitor();
-            visitor[b.Parameters[0]] = p;
+            SubstParameterExpressionVisitor visitor = new SubstParameterExpressionVisitor();
+            visitor[b.Parameters[0]] = parameter;
 
-            Expression body = Expression.OrElse(a.Body, visitor.Visit(b.Body));
-            return Expression.Lambda<Predicate<T>>(body, p);
+            Expression combinedBody = Expression.OrElse(a.Body, visitor.Visit(b.Body));
+            return Expression.Lambda<Predicate<T>>(combinedBody, parameter);
         }
 
         public static Expression<Predicate<T>> OrIfNotNull<T>(this Expression<Predicate<T>> a, Expression<Predicate<T>> b) => 
